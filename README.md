@@ -4,7 +4,7 @@
 Catalin Silviu Nastuta
 
 ## Date
-October 24, 2024
+November 4, 2024
 
 ## Purpose
 This is a basic shell program written in C++ that accepts user commands, executes them, and displays output. It supports built-in commands like `cd` and external commands through `execvp`.
