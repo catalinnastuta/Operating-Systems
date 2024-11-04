@@ -33,6 +33,16 @@ make clean
 - `ls -F`: Lists files in the current directory
 - `cat <file_name>`: Displays the content of a file
 
+## New I/O Redirection Support:
+Redirect standard input using <:
+./myshell> cat < input.txt
+
+Redirect standard output using >:
+./myshell> ls > output.txt
+
+Combine input and output redirection:
+./myshell> cat < input.txt > output.txt
+
 ## Dependencies
 - Linux/Unix-like OS (e.g., macOS, WSL, or VirtualBox with Ubuntu)
 - GNU Make

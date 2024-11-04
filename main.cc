@@ -1,11 +1,12 @@
-// main.cc - A simple shell program
+// main.cc - A simple shell program with I/O redirection support
 // Author: Catalin Silviu Nastuta
-// Date: October 24, 2024
-// Purpose: A basic shell that reads, parses, and executes commands
+// Date: November 4, 2024
+// Purpose: A basic shell that reads, parses, and executes commands with I/O redirection
 
 #include <iostream>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <cstring>
 #include <cstdlib>
 #include <vector>
@@ -17,15 +18,35 @@ void print_prompt() {
     std::cout << "myshell> " << std::flush;
 }
 
-// Parse user input into tokens
-std::vector<char *> parse_input(std::string input) {
+// Parse user input into tokens and check for I/O redirection
+std::vector<char *> parse_input(std::string input, std::string &input_file, std::string &output_file) {
     std::vector<char *> args;
     std::istringstream iss(input);
     std::string token;
+    
     while (iss >> token) {
-        char *arg = new char[token.length() + 1];
-        std::strcpy(arg, token.c_str());
-        args.push_back(arg);
+        if (token == "<") {
+            // Get the next token as the input file
+            if (iss >> token) {
+                input_file = token;
+            } else {
+                std::cerr << "Error: Missing input file for redirection\n";
+                return args;
+            }
+        } else if (token == ">") {
+            // Get the next token as the output file
+            if (iss >> token) {
+                output_file = token;
+            } else {
+                std::cerr << "Error: Missing output file for redirection\n";
+                return args;
+            }
+        } else {
+            // Regular argument
+            char *arg = new char[token.length() + 1];
+            std::strcpy(arg, token.c_str());
+            args.push_back(arg);
+        }
     }
     args.push_back(nullptr);  // execvp requires a NULL-terminated array
     return args;
@@ -50,10 +71,13 @@ int main() {
 
         if (input.empty()) continue;  // Ignore empty input
 
-        // Parse the input into arguments
-        std::vector<char *> args = parse_input(input);
+        // Variables for I/O redirection
+        std::string input_file, output_file;
 
-        if (args[0] == nullptr) continue;  // Skip if no valid command
+        // Parse the input into arguments and check for I/O redirection
+        std::vector<char *> args = parse_input(input, input_file, output_file);
+
+        if (args.empty() || args[0] == nullptr) continue;  // Skip if no valid command
 
         if (std::string(args[0]) == "exit") {
             break;  // Exit the shell
@@ -64,7 +88,28 @@ int main() {
             if (pid < 0) {
                 perror("Fork failed");
             } else if (pid == 0) {
-                // Child process: execute the command
+                // Child process: handle I/O redirection
+                if (!input_file.empty()) {
+                    int fd_in = open(input_file.c_str(), O_RDONLY);
+                    if (fd_in < 0) {
+                        perror("Error opening input file");
+                        exit(EXIT_FAILURE);
+                    }
+                    dup2(fd_in, STDIN_FILENO);
+                    close(fd_in);
+                }
+
+                if (!output_file.empty()) {
+                    int fd_out = open(output_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                    if (fd_out < 0) {
+                        perror("Error opening output file");
+                        exit(EXIT_FAILURE);
+                    }
+                    dup2(fd_out, STDOUT_FILENO);
+                    close(fd_out);
+                }
+
+                // Execute the command
                 if (execvp(args[0], args.data()) == -1) {
                     perror("Command execution failed");
                 }
