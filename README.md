@@ -4,7 +4,7 @@
 Catalin Silviu Nastuta
 
 ## Date
-November 4, 2024
+November 18, 2024
 
 ## Purpose
 This is a basic shell program written in C++ that accepts user commands, executes them, and displays output. It supports built-in commands like `cd` and external commands through `execvp`.
@@ -32,6 +32,10 @@ make clean
 - `mkdir <directory_name>`: Creates a new directory
 - `ls -F`: Lists files in the current directory
 - `cat <file_name>`: Displays the content of a file
+## Pipe Support:
+Use to pass the output of one command as the input to another.
+Example:
+- myshell> cat input.txt | grep keyword | wc -l
 
 ## New I/O Redirection Support:
 Redirect standard input using <:
