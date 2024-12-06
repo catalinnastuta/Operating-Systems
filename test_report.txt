@@ -1,0 +1,126 @@
+
+**Project Name:** Custom Shell Implementation (`main.cc`)  
+**Author:** Catalin Silviu Nastuta  
+**Date:** December 6, 2024  
+
+---
+
+### Objective
+The goal of this report is to detail the testing process for the custom shell program. The shell supports basic commands, I/O redirection, pipes, and internal commands like `cd` and `exit`.
+
+---
+
+### Test Environment
+- **Operating System:** Linux (Ubuntu 22.04 LTS)
+- **Compiler:** g++ (version 11.3.0)
+- **Testing Terminal:** bash
+- **Build Command:** `g++ -o myshell main.cc`
+- **Execution Command:** `./myshell`
+
+---
+
+### Test Scenarios
+The following scenarios were tested to validate the shell's functionality:
+
+#### 1. Basic Command Execution
+Test: Run simple commands like `ls`, `pwd`, and `echo`.  
+Command: 
+```bash
+ls
+pwd
+echo "Hello, world!"
+```
+Expected Output:
+- `ls` lists files in the current directory.  
+- `pwd` outputs the current working directory.  
+- `echo "Hello, world!"` displays the string `Hello, world!`.  
+Result: Pass  
+
+---
+
+#### 2. `cd` Command
+Test: Change directories using `cd`.  
+Commands:
+```bash
+cd ..
+cd /home
+```
+Expected Output:
+- Directory changes successfully.  
+- Errors for invalid directories, e.g., `cd /invalid_path`.  
+Result:  Pass  
+
+---
+
+#### 3. I/O Redirection
+Test: Redirect input and output for commands.  
+Commands: 
+```bash
+cat < input.txt > output.txt
+```
+Setup: Create `input.txt` with sample content.  
+Expected Output:  
+Content of `input.txt` is written to `output.txt`.  
+Result: Pass  
+
+---
+
+#### 4. Piping
+Test: Use pipes to connect commands.  
+Commands:  
+```bash
+ls | grep main | wc -l
+```
+Expected Output:  
+Number of lines containing "main" from the `ls` output.  
+Result: Pass  
+
+---
+
+#### 5. Error Handling
+Test: Handle invalid commands, missing files, and incorrect usage.  
+Commands: 
+```bash
+invalid_command
+cat < nonexistent.txt
+```
+Expected Output: 
+- Error messages for invalid commands or missing files.  
+Result: Pass  
+
+---
+
+#### 6. Multiple Commands with I/O Redirection and Pipes
+Test:Combine pipes and I/O redirection.  
+Command 
+```bash
+cat < input.txt | grep keyword > result.txt
+```
+Setup: Create `input.txt` with some content containing the word "keyword."  
+Expected Output:  
+Lines containing "keyword" are written to `result.txt`.  
+Result:  Pass  
+
+---
+
+#### 7. Exit Command
+Test: Exit the shell using the `exit` command.  
+Command:
+```bash
+exit
+```
+Expected Output:  
+Shell terminates gracefully.  
+Result: Pass  
+
+---
+
+### Issues and Fixes
+-Issue: Improper memory cleanup for dynamically allocated `char *` arguments.  
+Fix: Added cleanup code to delete `char *` allocations after command execution.
+
+---
+
+### Conclusion
+The custom shell program passed all functional and edge-case tests. It correctly handles commands, I/O redirection, pipes, and internal commands. Error handling is robust, ensuring user-friendly messages for invalid operations.
+
